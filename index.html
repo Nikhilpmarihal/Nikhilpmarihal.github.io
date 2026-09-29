@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nikhil P Marihal | Data Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF3F6;--dot:#C9D5DC;--panel:#FFFFFF;--soft:#E3EDF2;--ink:#0F2530;--muted:#4F6772;--line:#C5D3DA;
+  --ok:#0B8F7F;--run:#2563EB;--wait:#8A9CA5;--acc:#E08A00;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --sans:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1720;--dot:#1C3140;--panel:#12252F;--soft:#193340;--ink:#E4F0F5;--muted:#93AEBA;--line:#254250;
+  --ok:#2DD4BF;--run:#6EA0FF;--wait:#6F8A96;--acc:#FBBF24;}}
+:root[data-theme="dark"]{--bg:#0B1720;--dot:#1C3140;--panel:#12252F;--soft:#193340;--ink:#E4F0F5;--muted:#93AEBA;--line:#254250;--ok:#2DD4BF;--run:#6EA0FF;--wait:#6F8A96;--acc:#FBBF24}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);color:var(--ink);line-height:1.6;font-size:17px;background-color:var(--bg);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.2px);background-size:24px 24px}
+a{color:var(--run)}
+:focus-visible{outline:3px solid var(--acc);outline-offset:3px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 clamp(20px,5vw,56px)}
+h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.08}
+h1{font-size:clamp(3rem,9vw,6.6rem);font-weight:800}
+h2{font-size:clamp(1.7rem,3.5vw,2.3rem);font-weight:800}
+h3{font-size:1.2rem;font-weight:600;letter-spacing:-.01em;line-height:1.3}
+p{max-width:64ch;margin:.6em 0}
+.mono{font-family:var(--mono);font-size:.8rem}
+.muted{color:var(--muted)}
+
+/* hero */
+.hero{padding:clamp(48px,8vw,88px) 0 28px}
+.hero .lead{font-size:1.2rem;margin-top:1.1em;max-width:66ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:1.3em}
+.meta a{color:var(--ink);font-weight:600}
+
+/* DAG bar */
+.dag{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:26px 0 8px}
+.dag-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+button{font:inherit;font-family:var(--mono);font-size:.82rem;font-weight:500;background:var(--ink);color:var(--bg);border:0;border-radius:6px;padding:8px 16px;cursor:pointer}
+.nodes{display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:6px}
+.node{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);border:2px solid var(--wait);border-radius:8px;padding:6px 12px;white-space:nowrap;font-family:var(--mono);font-size:.78rem;background:var(--bg)}
+.edge{flex:0 0 22px;height:2px;background:var(--wait)}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--wait)}
+.st-success{border-color:var(--ok)}.st-success .dot{background:var(--ok)}
+.st-running{border-color:var(--run)}.st-running .dot{background:var(--run);animation:pulse 1s infinite}
+.st-queued{border-color:var(--wait)}
+@keyframes pulse{50%{opacity:.25}}
+
+/* task sections on a rail */
+.flow{position:relative;margin-top:24px}
+.task{display:grid;grid-template-columns:44px 1fr;gap:0 18px;position:relative}
+.task::before{content:"";position:absolute;left:21px;top:0;bottom:0;width:2px;background:var(--line)}
+.task:last-child::before{bottom:auto;height:34px}
+.pin{position:relative;z-index:1;width:44px;height:44px;border-radius:50%;background:var(--panel);border:3px solid var(--ok);display:grid;place-items:center;margin-top:8px}
+.pin i{width:14px;height:14px;border-radius:50%;background:var(--ok)}
+.task.st-running .pin{border-color:var(--run)}.task.st-running .pin i{background:var(--run)}
+.task.st-queued .pin{border-color:var(--wait)}.task.st-queued .pin i{background:var(--wait)}
+.body{padding:8px 0 44px}
+.head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-bottom:16px}
+.badge{font-family:var(--mono);font-size:.72rem;padding:2px 10px;border-radius:999px;border:1.5px solid var(--ok);color:var(--ok);font-weight:500}
+.task.st-running .badge{border-color:var(--run);color:var(--run)}
+.task.st-queued .badge{border-color:var(--wait);color:var(--wait)}
+.tid{font-family:var(--mono);font-size:.8rem;color:var(--muted);width:100%}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:16px}
+.card .stack{color:var(--run);margin:.3em 0 .7em;font-weight:500}
+.card ul,.job ul{padding-left:1.1em;margin:.6em 0 0}.card li,.job li{margin:.45em 0}
+.row{display:grid;grid-template-columns:190px 1fr;gap:6px 18px;padding:12px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row dt{font-weight:600;color:var(--muted)}
+dl{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 22px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.chips li{background:var(--soft);padding:3px 12px;border-radius:6px;font-family:var(--mono);font-size:.8rem}
+.plink{display:inline-block;margin-top:14px;font-family:var(--mono);font-size:.8rem;font-weight:500;color:var(--run);border:1.5px solid var(--run);border-radius:6px;padding:5px 14px;text-decoration:none}
+.plink:hover{background:var(--run);color:var(--bg)}
+.pipe{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0 4px}
+.pipe span{border:1.5px solid var(--run);color:var(--run);padding:4px 12px;border-radius:6px;font-family:var(--mono);font-size:.76rem}
+.pipe .hl{background:var(--run);color:var(--bg)}
+.pipe i{font-style:normal;color:var(--muted)}
+.list{list-style:none;margin:0;padding:0;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.list li{padding:12px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:20px}
+.list li:last-child{border-bottom:0}
+.list .tail{color:var(--muted);text-align:right}
+.sub{font-family:var(--mono);font-size:.8rem;color:var(--muted);margin:18px 0 8px}.sub:first-child{margin-top:0}
+.contact{border-top:2px solid var(--ink);padding:48px 0 24px;font-size:clamp(1.6rem,4.5vw,3rem);font-weight:800;letter-spacing:-.03em;line-height:1.15;overflow-wrap:anywhere}
+.contact a{text-decoration-thickness:4px;text-underline-offset:6px}
+footer{padding-bottom:40px;color:var(--muted)}
+@media (max-width:760px){.row{grid-template-columns:1fr}.task{grid-template-columns:32px 1fr;gap:0 12px}.pin{width:32px;height:32px}.pin i{width:10px;height:10px}.task::before{left:15px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<header class="hero">
+  <p class="mono muted">dag_id: nikhil_portfolio</p>
+  <h1>Nikhil P Marihal</h1>
+  <p class="lead">Business Analytics student at PES University with hands-on experience in ETL/ELT pipelines, data modeling, and batch and streaming data processing. Skilled in Python, SQL, PySpark, Databricks, AWS and Azure, with a focus on scalable, reliable data solutions.</p>
+  <div class="meta mono"><a href="tel:+917760814957">7760814957</a><a href="mailto:nikhilpmarihal@gmail.com">nikhilpmarihal@gmail.com</a><a href="https://www.linkedin.com/in/nikhilpmarihal/details/certifications/" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://github.com/Nikhilpmarihal" target="_blank" rel="noopener noreferrer">GitHub</a><span>Bengaluru, India</span></div>
+
+  <div class="dag" aria-label="Portfolio workflow">
+    <div class="dag-top"><span class="mono muted" id="run">run: scheduled, 5/5 tasks success</span><button id="trigger" type="button">Trigger DAG</button></div>
+    <nav class="nodes" id="nodes">
+      <a class="node st-success" href="#education"><span class="dot"></span>education</a><span class="edge"></span>
+      <a class="node st-success" href="#skills"><span class="dot"></span>technical_skills</a><span class="edge"></span>
+      <a class="node st-success" href="#experience"><span class="dot"></span>experience</a><span class="edge"></span>
+      <a class="node st-success" href="#projects"><span class="dot"></span>projects</a><span class="edge"></span>
+      <a class="node st-success" href="#certifications"><span class="dot"></span>certs_and_awards</a>
+    </nav>
+  </div>
+</header>
+
+<div class="flow">
+
+<section class="task st-success" id="education"><div class="pin"><i></i></div><div class="body">
+  <div class="head"><span class="tid">task: education</span><h2>Education</h2><span class="badge">success</span></div>
+  <div class="card">
+    <h3>PES University, Bengaluru, India</h3>
+    <p class="mono muted">July 2023 to July 2027</p>
+    <p>Bachelor of Business Administration (BBA) in Business Analytics, Specialization in Finance</p>
+  </div>
+</div></section>
+
+<section class="task st-success" id="skills"><div class="pin"><i></i></div><div class="body">
+  <div class="head"><span class="tid">task: technical_skills</span><h2>Technical Skills</h2><span class="badge">success</span></div>
+  <dl>
+    <div class="row"><dt>Languages</dt><dd><ul class="chips"><li>Python</li><li>SQL</li></ul></dd></div>
+    <div class="row"><dt>Data Engineering</dt><dd><ul class="chips"><li>ETL/ELT</li><li>Data Pipelines</li><li>Data Transformation</li><li>Data Modeling</li><li>Data Warehousing</li></ul></dd></div>
+    <div class="row"><dt>Databases and Warehouses</dt><dd><ul class="chips"><li>PostgreSQL</li><li>MySQL</li><li>Snowflake</li></ul></dd></div>
+    <div class="row"><dt>Data Processing</dt><dd><ul class="chips"><li>Apache Spark</li><li>PySpark</li><li>Apache Kafka</li></ul></dd></div>
+    <div class="row"><dt>Transformation and BI</dt><dd><ul class="chips"><li>dbt</li><li>Power BI</li><li>Tableau</li></ul></dd></div>
+    <div class="row"><dt>Orchestration and Storage</dt><dd><ul class="chips"><li>Apache Airflow</li><li>Microsoft Fabric</li><li>Databricks</li></ul></dd></div>
+    <div class="row"><dt>Cloud Platforms</dt><dd><ul class="chips"><li>AWS</li><li>Microsoft Azure</li></ul></dd></div>
+    <div class="row"><dt>DevOps and APIs</dt><dd><ul class="chips"><li>Git</li><li>GitHub</li><li>Docker</li><li>Postman</li><li>REST APIs</li></ul></dd></div>
+    <div class="row"><dt>Machine Learning and AI</dt><dd><ul class="chips"><li>Machine Learning</li><li>Deep Learning</li><li>NLP</li><li>Agentic AI</li></ul></dd></div>
+  </dl>
+</div></section>
+
+<section class="task st-success" id="experience"><div class="pin"><i></i></div><div class="body">
+  <div class="head"><span class="tid">task: experience</span><h2>Experience</h2><span class="badge">success</span></div>
+  <div class="card job">
+    <h3>Generative AI Intern, ExcelFore Corporation</h3>
+    <p class="mono muted">November 2025 to July 2026</p>
+    <ul>
+      <li>Worked with the DevOps team on Over-the-Air (OTA) update workflows for connected cars and scooters.</li>
+      <li>Supported deployment, testing, and validation of OTA updates across vehicle systems using AWS and Postman.</li>
+      <li>Used AWS services and APIs to monitor and troubleshoot update workflows, and validated APIs with Postman to ensure reliable communication between backend services and vehicles.</li>
+      <li>Helped identify and resolve deployment, API, and data issues, improving the reliability of OTA update processes.</li>
+    </ul>
+  </div>
+</div></section>
+
+<section class="task st-success" id="projects"><div class="pin"><i></i></div><div class="body">
+  <div class="head"><span class="tid">task: projects</span><h2>Projects</h2><span class="badge">success</span></div>
+  <article class="card">
+    <h3>Tez: Real-Time Ride Data Engineering Platform</h3>
+    <p class="stack mono">Azure, Databricks, PySpark, Delta Lake, Kafka</p>
+    <ul><li>Built a real-time ride data pipeline using the Bronze–Silver–Gold Medallion Architecture.</li><li>Implemented batch and streaming ETL workflows for scalable analytics.</li><li>Designed Star Schema and Slowly Changing Dimension (SCD) Type 2 models.</li></ul>
+    <div class="pipe" aria-label="Pipeline flow"><span>Kafka</span><i>then</i><span>Bronze</span><i>then</i><span>Silver</span><i>then</i><span class="hl">Gold: star schema, SCD2</span></div>
+    <a class="plink" href="https://github.com/Nikhilpmarihal/urban-mobility-medallion-analytics" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+  </article>
+  <article class="card">
+    <h3>Serverless REST API with API Gateway</h3>
+    <p class="stack mono">AWS Lambda, API Gateway, Python</p>
+    <ul><li>Built a serverless REST API with API key authentication, request validation, and external API integration.</li><li>Designed a scalable, secure, and cost-efficient architecture using stateless, event-driven services.</li></ul>
+    <a class="plink" href="https://github.com/Nikhilpmarihal/Patient-Management-System-API" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+  </article>
+  <article class="card">
+    <h3>DataMartX: Data Warehouse and Analytics</h3>
+    <p class="stack mono">SQL</p>
+    <p>Developed an end-to-end SQL data warehousing and analytics solution, from building the warehouse to generating business insights.</p>
+    <a class="plink" href="https://github.com/Nikhilpmarihal/DataMartX-End-to-End-DWH-Analytics" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+  </article>
+  <article class="card">
+    <h3>HR Analytics: Staff Insights and Beyond</h3>
+    <p class="stack mono">Tableau</p>
+    <p>Created an interactive dashboard on employee demographics and attrition trends to support data-driven retention decisions.</p>
+    <a class="plink" href="https://github.com/Nikhilpmarihal/HR--Staff-Insights-and-More---Tableau" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+  </article>
+</div></section>
+
+<section class="task st-success" id="certifications"><div class="pin"><i></i></div><div class="body">
+  <div class="head"><span class="tid">task: certifications_and_awards</span><h2>Certifications and Awards</h2><span class="badge">success</span></div>
+  <p class="sub">certifications</p>
+  <ul class="list">
+    <li><span>Databricks Certified Associate Developer for Apache Spark</span><span class="tail">Databricks</span></li>
+    <li><span>Machine Learning, Generative AI, and Data Transformation with Google Cloud</span><span class="tail">Google Cloud Skills Boost</span></li>
+    <li><span>MySQL and Tableau Desktop</span><span class="tail">Maven Analytics</span></li>
+  </ul>
+  <p class="sub">awards</p>
+  <ul class="list">
+    <li><span>2nd Place, NextGen Hackathon</span><span class="tail mono">2025</span></li>
+    <li><span>2nd Place, HackAI Hackathon</span><span class="tail mono">2024</span></li>
+  </ul>
+</div></section>
+
+</div>
+
+<div class="contact">Let's build something.<br><a href="mailto:nikhilpmarihal@gmail.com">nikhilpmarihal@gmail.com</a><br><a href="tel:+917760814957">7760814957</a></div>
+<footer class="mono">Nikhil P Marihal, Bengaluru, India</footer>
+</main>
+
+<script>
+(function(){
+  var nodes=[].slice.call(document.querySelectorAll('.node')),tasks=[].slice.call(document.querySelectorAll('.task')),
+      run=document.getElementById('run'),btn=document.getElementById('trigger'),timers=[];
+  function set(i,s){
+    [nodes[i],tasks[i]].forEach(function(el){el.className=el.className.replace(/st-\w+/,'st-'+s)});
+    tasks[i].querySelector('.badge').textContent=s;
+  }
+  function done(){var c=nodes.filter(function(n){return n.classList.contains('st-success')}).length;
+    run.textContent='run: '+(btn.dataset.ran?'manual':'scheduled')+', '+c+'/5 tasks success'}
+  btn.addEventListener('click',function(){
+    timers.forEach(clearTimeout);timers=[];btn.dataset.ran='1';
+    var still=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    for(var i=0;i<5;i++)set(i,'queued');done();
+    nodes.forEach(function(n,i){
+      var t=still?0:i*900;
+      timers.push(setTimeout(function(){set(i,'running');run.textContent='run: manual, running '+n.textContent}, t));
+      timers.push(setTimeout(function(){set(i,'success');done()}, t+(still?0:700)));
+    });
+  });
+})();
+</script>
+</body>
+</html>
